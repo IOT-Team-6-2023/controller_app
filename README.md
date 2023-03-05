@@ -18,5 +18,5 @@ npm init -y
 npm install
 ```
 ```bash
-node src
+node .
 ```
