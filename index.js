@@ -1,4 +1,4 @@
-const axios = require('axios');
+const https = require('https');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -7,28 +7,30 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const WEB_API = 'https://link-to-web-server.com:3000/'
+const WEB_API = 'https://jsonplaceholder.typicode.com';
 
 app.get('/candidates', (_, res) => {
-    let candidates = []
-    axios.get(WEB_API + 'candidtates')
-         .then(res => candidates = res.data)
-         .catch(err => console.log(err));
+    let candidates = [];
+    https.get(WEB_API + '/candidates', resp => {
+        let data = [];
 
-    res.send(candidates);
+        resp.on('data', chunk => {
+            data.push(chunk);
+        });
+
+        resp.on('end', () => {
+            candidates = JSON.parse(Buffer.concat(data).toString());
+            res.send(candidates);
+        });
+    }).on('error', err => {
+        console.log('Error: ', err.message);
+    });
 });
 
-app.post('/vote', (req, res) => {
-    let message = ""
-    if (req.body.constituency_id && req.body.candidate_id)
-        axios.post(WEB_API + 'vote')
-            .then(res => message = res.data.message)
-            .catch(err => console.log(err));
-
-    console.log(message);
-    res.send({message: message});
+app.post('/votes', (req, res) => {
+    // something similar for post
 });
 
 app.listen(3000, () => {
-  console.log('listening on port 3000');
+    console.log('listening on port 3000');
 });
