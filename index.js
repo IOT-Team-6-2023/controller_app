@@ -3,6 +3,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
+const axios = require('axios');
+
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -10,25 +12,30 @@ app.use(cors());
 const WEB_API = 'https://jsonplaceholder.typicode.com';
 
 app.get('/candidates', (_, res) => {
-    let candidates = [];
-    https.get(WEB_API + '/candidates', resp => {
-        let data = [];
-
-        resp.on('data', chunk => {
-            data.push(chunk);
-        });
-
-        resp.on('end', () => {
-            candidates = JSON.parse(Buffer.concat(data).toString());
-            res.send(candidates);
-        });
-    }).on('error', err => {
-        console.log('Error: ', err.message);
-    });
+    axios.get(WEB_API + '/candidates')
+         .then(resp => {
+             res.send(resp.data);
+         })
+         .catch(err => {
+             console.log('Error: ' + err);
+             res.send({ 'error': err }).status(504);
+         })
 });
 
 app.post('/votes', (req, res) => {
-    // something similar for post
+    if (req.body.constituency_id && req.body.candidate_id)
+        axios.post(WEB_API + '/votes', {
+            candidate_id: req.body.candidate_id,
+            constituency_id: req.body.constituency_id
+        }).then(resp => {
+            res.send(resp.data).status(201);
+        }).catch(err => {
+            console.log('Error: ' + err)
+            res.send({ 'error': err }).status(504);
+        });
+    else
+        res.send({ 'error': 'Unexpected request body.' })
+           .status(422);
 });
 
 app.listen(3000, () => {
