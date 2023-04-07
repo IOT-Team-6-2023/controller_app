@@ -9,7 +9,7 @@ const axios = require('axios');
 app.use(bodyParser.json());
 app.use(cors());
 
-const WEB_API = 'https://jsonplaceholder.typicode.com';
+const WEB_API = 'https://localhost:8000/votingAPI';
 
 app.get('/candidates', (_, res) => {
     axios.get(WEB_API + '/candidates')
@@ -24,9 +24,9 @@ app.get('/candidates', (_, res) => {
 
 app.post('/votes', (req, res) => {
     if (req.body.constituency_id && req.body.candidate_id)
-        axios.post(WEB_API + '/votes', {
-            candidate_id: req.body.candidate_id,
-            constituency_id: req.body.constituency_id
+        axios.post(WEB_API + '/tally', {
+            candidate: req.body.candidate_id,
+            constituency: req.body.constituency_id
         }).then(resp => {
             res.send(resp.data).status(201);
         }).catch(err => {
