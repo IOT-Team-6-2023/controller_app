@@ -9,10 +9,10 @@ const axios = require('axios');
 app.use(bodyParser.json());
 app.use(cors());
 
-const WEB_API = 'https://localhost:8000/votingAPI';
+const WEB_API = 'http://192.168.196.118:8000/votingAPI';
 
 app.get('/candidates', (_, res) => {
-    axios.get(WEB_API + '/candidates')
+    axios.get(WEB_API + '/candidates/')
          .then(resp => {
              res.send(resp.data);
          })
@@ -23,10 +23,9 @@ app.get('/candidates', (_, res) => {
 });
 
 app.post('/votes', (req, res) => {
-    if (req.body.constituency_id && req.body.candidate_id)
-        axios.post(WEB_API + '/tally', {
+    if (req.body.candidate_id)
+        axios.post(WEB_API + '/tally/', {
             candidate: req.body.candidate_id,
-            constituency: req.body.constituency_id
         }).then(resp => {
             res.send(resp.data).status(201);
         }).catch(err => {
@@ -38,6 +37,6 @@ app.post('/votes', (req, res) => {
            .status(422);
 });
 
-app.listen(3000, () => {
+app.listen(3000, '0.0.0.0', () => {
     console.log('listening on port 3000');
 });
